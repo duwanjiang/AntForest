@@ -6,8 +6,8 @@
     },
     "useFeatures": [],
     "main": "main.js",
-    "name": "AntForest",
-    "packageName": "com.dwj.ant.forest",
+    "name": "AutoJs6Projects",
+    "packageName": "com.dwj.autojs6.projects",
     "scripts": {},
     "versionCode": 1,
     "versionName": "1.0.0"

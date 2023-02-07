@@ -1,0 +1,12 @@
+test*.js
+*.apk
+*.bat
+*.exe
+*.html
+*.zip
+/.bak
+/.git
+/.github
+/.idea
+/assets/declarations/*
+

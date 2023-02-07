@@ -1,12 +1,11 @@
 <!--suppress HtmlDeprecatedAttribute -->
 
 <div align="center">
-  <p>
+   <p>
     <img alt="AF_Banner" src="https://raw.githubusercontent.com/SuperMonster002/Hello-Sockpuppet/master/ant-forest-banner_374%C3%97106.png"/>
   </p>
-
-  <p>基于 Auto.js 的蚂蚁森林能量自动收取脚本</p>
-  <p>Auto.js-based ant forest energy auto-collect script</p>
+  <p>基于 Auto.js 的自动脚本项目</p>
+  <p>Auto.js-based auto script project</p>
 </div>
 
 ******
