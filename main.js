@@ -34,12 +34,12 @@ var _ = {
         do {
             this.collectEnergy().findEnergy()
         } while (!this.isEnd())
-        log("收集能量完成")
+        toastLog("收集能量完成")
 
         // 收集能量雨
         if(tool.existText(config.text.energyRainCollectText)){
-            this.openEnergyRain().collectEnergyRain()
-            log("收集能量雨完成")
+            this.openEnergyRain().wait(3000).collectEnergyRain()
+            toastLog("收集能量雨完成")
         }
        
         return this
@@ -155,12 +155,12 @@ var _ = {
      */
     openEnergyRain() {
         var p = tool.pickupText(config.text.energyRainCollectText)
-        log("打开能量雨" + p)
+        log("打开能量雨")
         if (p && p instanceof UiObject) {
             tool.click(p.centerX(), p.centerY())
             if (tool.waitReadyByText(config.text.energyRainBeginText)) {
                 p = tool.pickupText(config.text.energyRainBeginText)
-                log("开始收集" + p)
+                log("开始收集")
                 if (p && p instanceof UiObject) {
                     tool.click(p.centerX(), p.centerY())
                 }
@@ -172,12 +172,10 @@ var _ = {
      * 收集能量雨
      */
     collectEnergyRain() {
-        if (!tool.existText(config.text.energyRainEndText)
-            && tool.waitReadyByText(config.text.energyRainReadyText)) {
+        if (!tool.existText(config.text.energyRainEndText)) {
             while (true) {
                 tool.wait(50)
                 var img = captureScreen();
-                //images.save(img,"/sdcard/脚本/First/11.jpg","jpg",90)
 
                 var pts = images.findAllPointsForColor(img, config.color.energyColor, {
                     threshold: 0,
@@ -186,10 +184,12 @@ var _ = {
 
                 if (pts && pts.length > 0) {
                     var p = pts[pts.length - 1]
+                    images.save(img,"/sdcard/脚本/First/"+p.x+".jpg","jpg",90)
                     log("能量雨坐标:" + p)
                     tool.click(p.x, p.y, 'p')
                 }
-                if (tool.existText(config.text.energyRainEndText)) {
+                if (tool.existText(config.text.energyRainEndText)  
+                   && !tool.waitReadyByText(config.text.energyRainReadyText)) {
                     break
                 }
             }
