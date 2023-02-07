@@ -1,4 +1,4 @@
-let { tool } = require('../../tools/tool.js');
+let  tool = require('../../tools/tool');
 
 var config = {
     appName: "支付宝",
@@ -176,7 +176,7 @@ var _ = {
     collectEnergyRain() {
         if (!tool.existText(config.text.energyRainEndText)) {
             while (true) {
-                tool.wait(50)
+                //tool.wait(50)
                 var img = captureScreen();
 
                 var pts = images.findAllPointsForColor(img, config.color.energyColor, {
@@ -186,12 +186,13 @@ var _ = {
 
                 if (pts && pts.length > 0) {
                     var p = pts[pts.length - 1]
-                    images.save(img, "/sdcard/脚本/First/" + p.x + ".jpg", "jpg", 90)
+                    tool.click(p.x, p.y,'p')
+                    //images.save(img, "/sdcard/脚本/First/" + p.x+ "-"+ p.y+".jpg", "jpg", 90)
                     log("能量雨坐标:" + p)
-                    tool.click(p.x, p.y, 'p')
+                    tool.click(p.x, p.y+120,'p')
                 }
                 if (tool.existText(config.text.energyRainEndText)
-                    && !tool.waitReadyByText(config.text.energyRainReadyText)) {
+                    && !tool.existText(config.text.energyRainReadyText)) {
                     break
                 }
             }

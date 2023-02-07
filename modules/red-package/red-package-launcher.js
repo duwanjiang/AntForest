@@ -1,4 +1,4 @@
-let { tool } = require('../../tools/tool.js');
+let tool = require('../../tools/tool');
 
 auto();
 events.observeNotification();

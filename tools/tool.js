@@ -1,4 +1,4 @@
-var tool = {
+let tool = {
     /**
      * 等待指定文本的界面加载完成
      * @param {*} text 
@@ -92,7 +92,7 @@ var tool = {
      */
     click(x, y, type) {
         if (type && type.match(/^p(ress)?$/)) {
-            press(x + config.pointPadding.x, y + config.pointPadding.y, 50)
+            press(x + config.pointPadding.x, y + config.pointPadding.y, 20)
         } else {
             click(x + config.pointPadding.x, y + config.pointPadding.y);
         }
@@ -105,5 +105,6 @@ var tool = {
         sleep(t)
     },
 }
+
 
 module.exports = tool;
