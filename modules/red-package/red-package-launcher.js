@@ -1,11 +1,5 @@
 let tool = require('../../tools/tool');
 
-auto();
-events.observeNotification();
-events.onNotification(function (notification) {
-    printNotification(notification);
-});
-
 function printNotification(notification) {
     log("应用包名: " + notification.getPackageName());
     log("通知文本: " + notification.getText());
@@ -24,5 +18,14 @@ var config = {
 }
 
 var _ = {
-    
+    start(){
+        log("开始抢红包")
+        auto();
+        events.observeNotification();
+        events.onNotification(function (notification) {
+            printNotification(notification);
+        });
+    }
 }
+
+module.exports = _

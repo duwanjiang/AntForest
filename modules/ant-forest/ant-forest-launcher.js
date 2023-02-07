@@ -202,6 +202,4 @@ var _ = {
 }
 
 
-
-// 执行程序
-_.start()
+module.exports = _

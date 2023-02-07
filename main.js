@@ -1,1 +1,10 @@
-toastLog("请执行modules下具体项目中的*-launcher.js")
+let antForest = require('./modules/ant-forest/ant-forest-launcher')
+let redPackge = require('./modules/red-package/red-package-launcher')
+var item = dialogs.singleChoice("请选择项目", ["蚂蚁森林", "微信红包"], 0);
+toast("选择了第" + (item + 1) + "个选项");
+switch(item){
+    case 0:
+        antForest.start()
+    case 1:
+        redPackge.start()
+}
