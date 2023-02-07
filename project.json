@@ -1,0 +1,15 @@
+{
+    "assets": [],
+    "build": {
+      "build_number": 0,
+      "build_time": 0
+    },
+    "useFeatures": [],
+    "main": "main.js",
+    "name": "AntForest",
+    "packageName": "com.dwj.ant.forest",
+    "scripts": {},
+    "versionCode": 1,
+    "versionName": "1.0.0"
+  }
+  
