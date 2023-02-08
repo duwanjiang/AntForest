@@ -1,3 +1,9 @@
+let config = {
+    pointPadding: {
+        x: 1.0,
+        y: 1.0
+    },
+}
 let tool = {
     /**
      * 等待指定文本的界面加载完成
@@ -34,7 +40,6 @@ let tool = {
         while (true) {
             //截图
             var img = captureScreen();
-            //images.save(img,"/sdcard/脚本/First/11.jpg","jpg",90)
             var point = findImage(img, template);
             if (point) {
                 template.recycle()
@@ -68,20 +73,27 @@ let tool = {
     /**
      * 查找图片坐标
      * 
-     * @param {*} imgPath 
+     * @param {待查找小图路径} imgPath 
      * @returns 
      */
     findImgPoint(imgPath) {
-        var template = images.read(imgPath);
-        if (!template) {
-            return
+        let template
+        try {
+            template = images.read(imgPath)
+            //截图
+            var img = captureScreen();
+            var point = findImage(img, template);
+            return point
+        } catch (e) {
+            log(e)
+        } finally {
+            if (template) {
+                template.recycle()
+            }
         }
-        //截图
-        var img = captureScreen();
-        // images.save(img,"/sdcard/脚本/First/11.jpg","jpg",90)
-        var point = findImage(img, template);
-        template.recycle()
-        return point
+    },
+    saveImg(img, path) {
+        images.save(img, path, "jpg", 90)
     },
     /**
      * 点击事件

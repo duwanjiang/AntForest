@@ -1,11 +1,13 @@
-let  tool = require('../../tools/tool');
+let tool = require('../../tools/tool');
 
-var config = {
+let config = {
     appName: "支付宝",
     antForestUrl: 'alipays://platformapi/startapp?appId=60000002',
     imgPath: {
-        findEnergyImgPath: "./img/find.jpg",
-        collectEnergyImgPath: "./img/g.jpg"
+        // 根据main.js的相对路径
+        findEnergyImgPath: "./res/ant-forest/img/find.jpg",
+        collectEnergyImgPath: "./res/ant-forest/img/g.jpg",
+        rainingImgPath: "./res/ant-forest/img/raining.jpg",
     },
     text: {
         homeText: "蚂蚁森林",
@@ -21,10 +23,6 @@ var config = {
     color: {
         energyColor: '#DEFF00'
     },
-    pointPadding: {
-        x: 1.0,
-        y: 1.0
-    },
 }
 
 var _ = {
@@ -33,18 +31,99 @@ var _ = {
      */
     start() {
         this.launchApp().wait(1000).ensureCaptPermission().wait(100)
+        this.monitor()
         do {
-            this.collectEnergy().findEnergy()
-        } while (!this.isEnd())
+            sleep(100)
+            if (this.flag.energy.start && !this.flag.energy.end) {
+                this.collectEnergy().wait(1000).findEnergy()
+            }
+            if (this.flag.energyRain.open) {
+                this.openEnergyRain()
+            }
+            if (this.flag.energyRain.start) {
+                this.startEnergyRain()
+            }
+            if (this.flag.energyRain.raining) {
+                this.collectEnergyRain()
+            }
+        } while (!this.flag.end)
+        threads.shutDownAll();
         toastLog("收集能量完成")
-
-        // 收集能量雨
-        if (tool.existText(config.text.energyRainCollectText)) {
-            this.openEnergyRain().wait(3000).collectEnergyRain()
-            toastLog("收集能量雨完成")
+    },
+    flag: {
+        end: false,
+        energy: {
+            start: false,
+            end: false
+        },
+        energyRain: {
+            open: false,
+            start: false,
+            raining: false,
+            end: false
         }
-
-        return this
+    },
+    flagReset() {
+        this.flag = {}
+        this.flag.end = false
+        this.flag.energy = {}
+        this.flag.energy.start = false
+        this.flag.energy.end = false
+        this.flag.energyRain = {}
+        this.flag.energyRain.open = false
+        this.flag.energyRain.start = false
+        this.flag.energyRain.raining = false
+        this.flag.energyRain.end = false
+    },
+    /**
+     * 监控页面状态
+     */
+    monitor() {
+        threads.start(() => {
+            while (!_.flag.end) {
+                _.flagReset()
+                let flag = false
+                let wc = contentMatch(/.+/).find()
+                if (wc && wc.length > 0) {
+                    if (wc.toArray()[0].packageName() != App.ALIPAY.getPackageName()) {
+                        // 当前不在支付宝页面
+                        continue
+                    }
+                }
+                if (!flag && tool.existText(config.text.endText) && !tool.existText(config.loadingText)) {
+                    _.flag.energy.end = true
+                    if(tool.existText(config.text.energyRainEndText)){
+                        _.flag.end = true
+                    }
+                    flag = true
+                }
+                if (!flag && tool.existText(config.text.homeText) && !tool.existText(config.loadingText)) {
+                    _.flag.energy.start = true
+                    flag = true
+                }
+                if (!flag && tool.existText(config.text.energyRainBeginText) && !tool.existText(config.loadingText)) {
+                    _.flag.energyRain.start = true
+                    flag = true
+                }
+                if (!flag && tool.existText(config.text.energyRainCollectText) && !tool.existText(config.loadingText)) {
+                    _.flag.energyRain.open = true
+                    flag = true
+                }
+                if (!flag && tool.existText(config.text.energyRainEndText) && !tool.existText(config.loadingText)) {
+                    _.flag.energyRain.end = true
+                    _.flag.end = true
+                    flag = true
+                }
+                if (!flag && tool.findImgPoint(config.imgPath.rainingImgPath)) {
+                    _.flag.energyRain.raining = true
+                    flag = true
+                }
+                if(flag){
+                    log(_.flag)
+                }
+                sleep(100)
+            }
+        });
     },
     /**
      * 打开蚂蚁森林
@@ -85,69 +164,35 @@ var _ = {
         exit();
     },
     /**
-     * 是否结束
-     */
-    isEnd() {
-        return tool.existText(config.text.endText)
-    },
-    /**
-     * 点击找能量
-     */
+    * 点击找能量
+    */
     findEnergy() {
-        if (tool.waitReadyByText(config.text.homeText)) {
-            var point = tool.findImgPoint(config.imgPath.findEnergyImgPath)
-            if (point) {
-                log('找能量坐标:' + point)
-                // 点击找能量
-                tool.click(point.x, point.y)
-            }
+        var point = tool.findImgPoint(config.imgPath.findEnergyImgPath)
+        if (point) {
+            log('找能量坐标:' + point)
+            // 点击找能量
+            tool.click(point.x, point.y)
         }
         return this;
     },
     /**
-     * 收集能量
-     */
-    collectEnergyByImg() {
-        if (tool.waitReadyByText(config.text.homeText, config.text.loadingText)) {
-            //截图
-            var img = captureScreen();
-            //images.save(img,"/sdcard/脚本/First/11.jpg","jpg",90)
-            var template = images.read(config.imgPath.collectEnergyImgPath);
-            var result = images.matchTemplate(img, template, {
-                max: 100
-            });
-            result.matches.forEach(match => {
-                log("point = " + match.point + ", similarity = " + match.similarity);
-                tool.wait(100)
-                tool.click(match.point.x, match.point.y - 10)
-            });
-            template.recycle()
-        }
-        return this;
-    },
-    /**
-     * 收集能量
-     */
+    * 收集能量
+    */
     collectEnergy() {
-        if (tool.waitReadyByText(config.text.homeText, config.text.loadingText)) {
-            while (true) {
-                tool.wait(100)
-                var img = captureScreen();
-                //,images.save(img,"/sdcard/脚本/First/11.jpg","jpg",90)
-
-                var p = images.findMultiColors(img, config.color.energyColor, [
-                    [0, 2, config.color.energyColor],
-                    [2, 2, config.color.energyColor]
-                ], {
-                    threshold: 0.9
-                });
-
-                if (p) {
-                    log("能量坐标:" + p)
-                    tool.click(p.x, p.y)
-                } else {
-                    break
-                }
+        while(!this.flag.energy.end){
+            var img = captureScreen();
+            var p = images.findMultiColors(img, config.color.energyColor, [
+                [0, 2, config.color.energyColor],
+                [2, 2, config.color.energyColor]
+            ], {
+                threshold: 0.9
+            });
+    
+            if (p) {
+                log("能量坐标:" + p)
+                tool.click(p.x, p.y)
+            } else {
+                break
             }
         }
         return this;
@@ -156,17 +201,18 @@ var _ = {
      * 打开能量雨
      */
     openEnergyRain() {
-        var p = tool.pickupText(config.text.energyRainCollectText)
+        let p = tool.pickupText(config.text.energyRainCollectText)
         log("打开能量雨")
         if (p && p instanceof UiObject) {
             tool.click(p.centerX(), p.centerY())
-            if (tool.waitReadyByText(config.text.energyRainBeginText)) {
-                p = tool.pickupText(config.text.energyRainBeginText)
-                log("开始收集")
-                if (p && p instanceof UiObject) {
-                    tool.click(p.centerX(), p.centerY())
-                }
-            }
+        }
+        return this
+    },
+    startEnergyRain() {
+        let p = tool.pickupText(config.text.energyRainBeginText)
+        log("开始收集")
+        if (p && p instanceof UiObject) {
+            tool.click(p.centerX(), p.centerY())
         }
         return this
     },
@@ -174,27 +220,21 @@ var _ = {
      * 收集能量雨
      */
     collectEnergyRain() {
-        if (!tool.existText(config.text.energyRainEndText)) {
-            while (true) {
-                //tool.wait(50)
-                var img = captureScreen();
+        while (!this.flag.energyRain.end) {
+            //tool.wait(50)
+            var img = captureScreen();
 
-                var pts = images.findAllPointsForColor(img, config.color.energyColor, {
-                    threshold: 0,
-                    // region:[610.0, 609.0,]
-                });
+            var pts = images.findAllPointsForColor(img, config.color.energyColor, {
+                threshold: 0,
+                // region:[610.0, 609.0,]
+            });
 
-                if (pts && pts.length > 0) {
-                    var p = pts[pts.length - 1]
-                    tool.click(p.x, p.y,'p')
-                    //images.save(img, "/sdcard/脚本/First/" + p.x+ "-"+ p.y+".jpg", "jpg", 90)
-                    log("能量雨坐标:" + p)
-                    tool.click(p.x, p.y+120,'p')
-                }
-                if (tool.existText(config.text.energyRainEndText)
-                    && !tool.existText(config.text.energyRainReadyText)) {
-                    break
-                }
+            if (pts && pts.length > 0) {
+                var p = pts[pts.length - 1]
+                tool.click(p.x, p.y, 'p')
+                //images.save(img, "/sdcard/脚本/First/" + p.x+ "-"+ p.y+".jpg", "jpg", 90)
+                log("能量雨坐标:" + p)
+                tool.click(p.x, p.y + 120, 'p')
             }
         }
         return this
