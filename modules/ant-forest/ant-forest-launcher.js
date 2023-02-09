@@ -17,6 +17,7 @@ let config = {
         energyRainCollectText: "去收取",
         energyRainBeginText: "立即开启",
         energyRainReadyText: "剩余时间|已拯救能量",
+        energyRainSendText: "送TA机会",
         energyRainEndText: /恭喜获得|今日累计获取|天天能量雨已完成/,
     },
     color: {
@@ -46,6 +47,10 @@ var _ = {
             if (this.flag.energyRain.start) {
                 this.startEnergyRain().wait(3000).collectEnergyRain()
             }
+            if (this.flag.energyRain.send) {
+                toastLog("等待送好友机会，并继续收取能量！")
+                this.wait(2000)
+            }
             sleep(1000)
         } while (!this.flag.end)
         threads.shutDownAll();
@@ -60,19 +65,24 @@ var _ = {
         energyRain: {
             open: false,
             start: false,
+            send: false,
             end: false
         }
     },
     flagReset() {
-        this.flag = {}
-        this.flag.end = false
-        this.flag.energy = {}
-        this.flag.energy.start = false
-        this.flag.energy.end = false
-        this.flag.energyRain = {}
-        this.flag.energyRain.open = false
-        this.flag.energyRain.start = false
-        this.flag.energyRain.end = false
+        this.flag = {
+            end: false,
+            energy: {
+                start: false,
+                end: false
+            },
+            energyRain: {
+                open: false,
+                start: false,
+                send: false,
+                end: false
+            }
+        }
     },
     /**
      * 监控页面状态
@@ -101,7 +111,8 @@ var _ = {
                     _.flag.energy.start = true
                     flag = true
                 }
-                if (!flag && tool.existText(config.text.energyRainBeginText) && !tool.existText(config.loadingText)) {
+                if (!flag && tool.existText(config.text.energyRainBeginText) &&
+                    !tool.existText(config.text.energyRainEndText) && !tool.existText(config.loadingText)) {
                     _.flag.energyRain.start = true
                     flag = true
                 }
@@ -111,9 +122,13 @@ var _ = {
                 }
                 if (!flag && tool.existText(config.text.energyRainEndText) && !tool.existText(config.loadingText)) {
                     _.flag.energyRain.end = true
+                    if (!tool.existText(config.text.energyRainSendText)) {
+                        _.flag.end = true
+                    } else {
+                        _.flag.energyRain.send = true
+                    }
                     flag = true
                 }
-
                 sleep(500)
             }
         });
@@ -187,7 +202,7 @@ var _ = {
             } else {
                 break
             }
-            tool.wait(100)
+
         }
         return this;
     },
