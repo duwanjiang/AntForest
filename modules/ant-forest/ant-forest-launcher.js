@@ -15,7 +15,7 @@ let config = {
         loadingText: "稍等片刻",
 
         energyRainCollectText: "去收取",
-        energyRainBeginText: "立即开启",
+        energyRainBeginText: /立即开启|再来一次/,
         energyRainReadyText: "剩余时间|已拯救能量",
         energyRainSendText: "送TA机会",
         energyRainEndText: /恭喜获得|今日累计获取|天天能量雨已完成/,
@@ -101,7 +101,8 @@ var _ = {
                 }
                 if (!flag && tool.existText(config.text.endText) && !tool.existText(config.loadingText)) {
                     _.flag.energy.end = true
-                    if (tool.existText(config.text.energyRainEndText)) {
+                    if (tool.existText(config.text.energyRainEndText) &&
+                        !tool.existText(config.text.energyRainSendText)) {
                         _.flag.end = true
                     }
                     flag = true
@@ -122,10 +123,12 @@ var _ = {
                 }
                 if (!flag && tool.existText(config.text.energyRainEndText) && !tool.existText(config.loadingText)) {
                     _.flag.energyRain.end = true
-                    if (!tool.existText(config.text.energyRainSendText)) {
-                        _.flag.end = true
-                    } else {
+                    if (tool.existText(config.text.energyRainSendText)) {
                         _.flag.energyRain.send = true
+                    } else if (tool.existText(config.text.energyRainBeginText)) {
+                        _.flag.energyRain.start = true
+                    } else {
+                        _.flag.end = true
                     }
                     flag = true
                 }
