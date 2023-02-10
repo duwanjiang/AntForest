@@ -22,6 +22,7 @@ let config = {
     },
     color: {
         energyColor: '#DEFF00',
+        energyDoubleColor: '#dcfe07',
         energyRainColor: '#DAFF00'
     },
     region: function $iiFe() {
@@ -192,22 +193,31 @@ var _ = {
     collectEnergy() {
         while (!this.flag.energy.end) {
             var img = captureScreen();
-            var p = images.findMultiColors(img, config.color.energyColor, [
-                [0, 2, config.color.energyColor],
-                [2, 2, config.color.energyColor]
-            ], {
-                threshold: 0
-            });
-
+            var p = this.findMultiColors(img, config.color.energyColor)
             if (p) {
                 log("能量坐标:" + p)
                 tool.click(p.x, p.y)
             } else {
-                break
+                p = this.findMultiColors(img, config.color.energyDoubleColor)
+                if (p) {
+                    log("能量坐标:" + p)
+                    tool.click(p.x, p.y)
+                } else {
+                    break
+                }
             }
 
         }
         return this;
+    },
+    findMultiColors(img, color) {
+        return images.findMultiColors(img, color, [
+            [0, 2, color],
+            [2, 2, color]
+        ], {
+            threshold: 0.9,
+            //region: config.region
+        });
     },
     /**
      * 打开能量雨
