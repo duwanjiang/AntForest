@@ -196,7 +196,7 @@ var _ = {
                 [0, 2, config.color.energyColor],
                 [2, 2, config.color.energyColor]
             ], {
-                threshold: 0.9
+                threshold: 0
             });
 
             if (p) {
