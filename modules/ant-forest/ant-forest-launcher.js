@@ -22,7 +22,7 @@ let config = {
     },
     color: {
         energyColor: '#DEFF00',
-        energyDoubleColor: '#dcfe07',
+        energyDoubleColor: '#DEFF02',
         energyRainColor: '#DAFF00'
     },
     region: function $iiFe() {
@@ -212,8 +212,8 @@ var _ = {
     },
     findMultiColors(img, color) {
         return images.findMultiColors(img, color, [
-            [0, 2, color],
-            [2, 2, color]
+            [0, 0, color],
+            [0, 0, color]
         ], {
             threshold: 0.9,
             //region: config.region
