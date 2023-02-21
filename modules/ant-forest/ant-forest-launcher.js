@@ -23,7 +23,8 @@ let config = {
     color: {
         energyColor: '#DEFF00',
         energyDoubleColor: '#DEFF02',
-        energyRainColor: '#DAFF00'
+        energyRainColor: '#DAFF00',
+        energyProtectColor: '#ADFA78',
     },
     region: function $iiFe() {
         let [l, t, r, b] = [cX(0.1), cYx(0.16), cX(0.9), cYx(0.36)];
@@ -193,8 +194,13 @@ var _ = {
     collectEnergy() {
         while (!this.flag.energy.end) {
             var img = captureScreen();
-            var p = this.findMultiColors(img, config.color.energyColor)
+            var p = this.findMultiColors(img, config.color.energyProtectColor)
             if (p) {
+                log("有能量保护罩:" + p)
+                break
+            }
+            p = this.findMultiColors(img, config.color.energyColor)
+                if (p) {
                 log("能量坐标:" + p)
                 tool.click(p.x, p.y)
             } else {
